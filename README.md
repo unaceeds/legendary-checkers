@@ -1,0 +1,2 @@
+# legendary-checkers
+Chinese checkers

@@ -4,10 +4,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class Tescik {
+public class TescikTest {
 
-	public Tescik() {
+	public TescikTest() {
 		// TODO Auto-generated constructor stub
+	}
+
+	@Test
+	public void methTest1() {
+		assertEquals(true, true);
 	}
 
 	@Test

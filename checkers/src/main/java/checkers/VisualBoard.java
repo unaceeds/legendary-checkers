@@ -5,21 +5,23 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class VisualBoard implements ActionListener 
-{
+import javax.swing.JPanel;
+
+@SuppressWarnings("serial")
+public class VisualBoard extends JPanel implements ActionListener {
 	private int height;
 	private int width;
 	private Graphics2D g2d;
-	public void actionPerformed(ActionEvent e) 
-	{
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 
 	}
-	
-	
-    public void paintComponent(Graphics g) 
-    {
 
-    }
+	@Override
+	protected void paintComponent(Graphics g) {
+
+	}
 
 }

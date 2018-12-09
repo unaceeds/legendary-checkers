@@ -1,4 +1,4 @@
-package checkers;
+package wall.chinese.checkers.clientside.board;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;

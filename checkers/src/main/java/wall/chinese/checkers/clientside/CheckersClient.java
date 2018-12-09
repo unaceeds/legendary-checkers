@@ -1,4 +1,4 @@
-package checkers;
+package wall.chinese.checkers.clientside;
 
 public class CheckersClient 
 {

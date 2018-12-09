@@ -1,4 +1,4 @@
-package checkers;
+package wall.chinese.checkers.serverside;
 
 import java.util.ArrayList;
 import java.util.List;

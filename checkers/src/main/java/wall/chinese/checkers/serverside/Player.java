@@ -9,4 +9,9 @@ public class Player extends Thread
 	private Socket socket;
 	private BufferedReader input;
 	private PrintWriter output;
+	
+	public Player(Socket socket)
+	{
+		this.socket = socket;
+	}
 }

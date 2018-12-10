@@ -34,6 +34,10 @@ public class Field
 	{
 		this.cogType = cogType;
 	}
+	public CogTypes getCogType()
+	{
+		return cogType;
+	}
 	
 }
 

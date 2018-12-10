@@ -4,15 +4,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import wall.chinese.checkers.clientside.board.CogTypes;
+
 public class InsideBoard 
 {
 	private static int MAGIC = 4;
 	private List<Field> fields;
-	private Field[][] playerSections;
+	private List<List<Field>> playerSections;
 	
 	public InsideBoard() {
 		generateFields();
 		preparePlayerSections();
+	}
+	
+	public List<Field> getFields()
+	{
+		return fields;
 	}
 	
 	private void generateFields() {
@@ -40,7 +47,10 @@ public class InsideBoard
 	
 	private void preparePlayerSections() {
 		int oneSum = MAGIC*(MAGIC+1)/2;
-		playerSections = new Field[6][oneSum];
+		playerSections = new ArrayList<List<Field>>();
+		for (int i = 0; i < 6; i++) {
+			playerSections.add(new ArrayList<Field>());
+		}
 		preparePlayerSection(0, 0, fields.get(oneSum - 1));
 		preparePlayerSection(1, 0, fields.get(oneSum + 2*MAGIC + 1));
 		int twoSum = (2*MAGIC+1)*(2*MAGIC+1+1)/2;
@@ -52,47 +62,49 @@ public class InsideBoard
 	}
 	
 	private void preparePlayerSection(int section, int j, Field field) {
-		playerSections[section][j++] = field;
+		playerSections.get(section).add(field);
+		//playerSections.get(section).get(playerSections.get(section).size()-1).setFill(true);
+		//fields.get(field).setFill(true);
 		switch (section) {
 			case 0:
 				if (field.getNeighbours()[Direction.LEFT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LEFT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LEFT.ordinal()]));
 				}
 				if (field.getNeighbours()[Direction.UPPER_LEFT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.UPPER_LEFT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.UPPER_LEFT.ordinal()]));
 				}
 				break;
 			case 1:
 				if (field.getNeighbours()[Direction.RIGHT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.RIGHT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.RIGHT.ordinal()]));
 				}
 				if (field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
 				}
 				break;
 			case 2:
 			case 4:
 				if (field.getNeighbours()[Direction.LOWER_LEFT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LOWER_LEFT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LOWER_LEFT.ordinal()]));
 				}
 				if (field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
 				}
 				break;
 			case 3:
 				if (field.getNeighbours()[Direction.RIGHT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.RIGHT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.RIGHT.ordinal()]));
 				}
 				if (field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LOWER_RIGHT.ordinal()]));
 				}
 				break;
 			case 5:
 				if (field.getNeighbours()[Direction.LEFT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LEFT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LEFT.ordinal()]));
 				}
 				if (field.getNeighbours()[Direction.LOWER_LEFT.ordinal()] >= 0) {
-					preparePlayerSection(section, j, fields.get(field.getNeighbours()[Direction.LOWER_LEFT.ordinal()]));
+					preparePlayerSection(section, j++, fields.get(field.getNeighbours()[Direction.LOWER_LEFT.ordinal()]));
 				}
 				break;
 		}
@@ -135,5 +147,17 @@ public class InsideBoard
 			field.setNeighbour(Direction.UPPER_RIGHT, index - neighbourIndex);
 			fields.get(index - neighbourIndex).setNeighbour(Direction.LOWER_LEFT, index);
 		}
+	}
+
+	public void fillStartedBoard(CogTypes[] cogTypes) 
+	{
+		for(int i = 0; i < cogTypes.length; i++)
+		{
+			for(int j = 0; j < playerSections.get(cogTypes[i].ordinal()).size(); j++)
+			{
+				playerSections.get(cogTypes[i].ordinal()).get(j).setCogType(cogTypes[i]);
+			}
+		}
+		
 	}
 }

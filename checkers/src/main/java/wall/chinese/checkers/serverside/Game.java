@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import wall.chinese.checkers.clientside.board.CogTypes;
+import wall.chinese.checkers.serverside.Game.Player;
 
 public class Game 
 {
@@ -15,6 +16,10 @@ public class Game
 	private int countOfConnectedPlayers = 0;
 	private Player[] players;
 	private Player currentPlayer;
+	private CogTypes[] startPlayers, startTwoPlayers = {CogTypes.EAX, CogTypes.EDX}, 
+			startThreePlayers = {CogTypes.EAX, CogTypes.ECX, CogTypes.EEX}, 
+			startFourPlayers = {CogTypes.EBX, CogTypes.ECX, CogTypes.EEX, CogTypes.EFX},
+			startSixPlayers = {CogTypes.EAX,CogTypes.EBX, CogTypes.ECX, CogTypes.EDX, CogTypes.EEX, CogTypes.EFX};
 	
 	
 	public Game(int maxCountOfPlayers)
@@ -22,6 +27,23 @@ public class Game
 		this.maxCountOfPlayers = maxCountOfPlayers;
 		players = new Player[maxCountOfPlayers];
 		insideBoard = new InsideBoard();
+    	switch(maxCountOfPlayers)
+    	{
+    		case 2:
+            	startPlayers = startTwoPlayers;
+            	break;
+    		case 3:
+            	startPlayers = startThreePlayers;
+            	break;
+    		case 4:
+            	startPlayers = startFourPlayers;
+            	break;
+    		case 6:
+            	startPlayers = startSixPlayers;
+            	break;
+    	}
+    	
+    	insideBoard.fillStartedBoard(startPlayers);
 		
 	}
 	
@@ -39,7 +61,19 @@ public class Game
 		return players;
 	}
 	
-
+	public Player theWinnerIs()
+	{
+		
+		return null;
+	}
+	public void sendWholeBoard(PrintWriter output)
+	{
+		for(Field field: insideBoard.getFields())
+		{
+			System.out.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+			output.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+		}
+	}
 	
 	class Player extends Thread
 	{
@@ -49,10 +83,10 @@ public class Game
 		private CogTypes myCogType; 
 		private CogTypes opponentCogType;
 		
-		public Player(Socket socket, CogTypes myCogType)
+		public Player(Socket socket, int indexOfPlayer)
 		{
 			this.socket = socket;
-			this.myCogType = myCogType;
+			myCogType = startPlayers[indexOfPlayer];
 			setOpponentCogType();
             try 
             {
@@ -64,11 +98,12 @@ public class Game
                 System.out.println("Player died: " + e);
             }
 		}
-		
+
 		public void run()
 		{
 			try
 			{
+				sendWholeBoard(output);
 				while(true)
 				{
 					String command = input.readLine();

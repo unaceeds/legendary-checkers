@@ -1,10 +1,12 @@
 package wall.chinese.checkers.serverside;
 
+import wall.chinese.checkers.clientside.board.CogTypes;
+
 public class Field 
 {
-	//TODO enum FieldState i pole state
 	private int row;
 	private int[] neighbours;
+	private CogTypes cogType;
 	
 	public Field(int row)
 	{
@@ -13,6 +15,7 @@ public class Field
 		for (int i = 0; i < Direction.values().length; i++) {
 			neighbours[i] = -1;
 		}
+		cogType = CogTypes.EBP;
 	}
 	
 	public void setNeighbour(Direction direction, int neighbourIndex) {
@@ -25,6 +28,11 @@ public class Field
 	
 	public int getRow() {
 		return row;
+	}
+	
+	public void setCogType(CogTypes cogType)
+	{
+		this.cogType = cogType;
 	}
 	
 }

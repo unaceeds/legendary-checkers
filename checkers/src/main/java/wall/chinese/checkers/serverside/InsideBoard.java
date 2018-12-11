@@ -152,12 +152,60 @@ public class InsideBoard
 	public void fillStartedBoard(CogTypes[] cogTypes) 
 	{
 		for(int i = 0; i < cogTypes.length; i++)
-		{
 			for(int j = 0; j < playerSections.get(cogTypes[i].ordinal()).size(); j++)
-			{
 				playerSections.get(cogTypes[i].ordinal()).get(j).setCogType(cogTypes[i]);
+	}
+	
+	// afterJump - false if it is after 'normal' move, true if it is after 'jump'
+	public List<Integer> getPossibleMoves(CogTypes cogType, int fieldIndex, boolean afterJump)
+	{
+		List<Integer> possibleMoves = new ArrayList<Integer>();
+		if(fields.get(fieldIndex).getCogType() != cogType) // pionek nie jest nasz
+			return possibleMoves;
+		if(afterJump == false)
+		{
+			for(int i = 0; i < fields.get(fieldIndex).getNeighbours().length; i++)
+			{
+				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //sasiad istnieje
+				{	//sasiad nie jest zajety
+					if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getCogType() == CogTypes.EBP)
+					{ 
+						possibleMoves.add(fields.get(fieldIndex).getNeighbours()[i]);
+					}
+					//sasiad jest zajety
+					else
+					{	
+						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
+								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
+								.getCogType() == CogTypes.EBP ) // sasiad sasiada istnieje i nie jest zajety
+						{
+							possibleMoves.add(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i]);
+						}
+							
+					}
+				}
+
+			}
+		}
+		else
+		{
+			for(int i = 0; i < fields.get(fieldIndex).getNeighbours().length; i++)
+			{
+				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //sasiad istnieje
+				{	//sasiad jest zajety
+					if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getCogType() != CogTypes.EBP)
+					{	//sasiad sasiada istnieje i nie jest zajety
+						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
+								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
+								.getCogType() == CogTypes.EBP)
+						{
+							possibleMoves.add(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i]);
+						}
+					}
+				}
 			}
 		}
 		
+		return possibleMoves;
 	}
 }

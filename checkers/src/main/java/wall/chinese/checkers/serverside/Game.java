@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import wall.chinese.checkers.clientside.board.CogTypes;
 import wall.chinese.checkers.serverside.Game.Player;
@@ -70,10 +72,14 @@ public class Game
 	{
 		for(Field field: insideBoard.getFields())
 		{
-			System.out.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
-			output.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+			if(field.getCogType() == CogTypes.EBP)
+				output.println("SUB " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+			else
+				output.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
 		}
 	}
+	
+
 	
 	class Player extends Thread
 	{
@@ -103,9 +109,9 @@ public class Game
 		{
 			try
 			{
-				sendWholeBoard(output);
 				while(true)
 				{
+					sendWholeBoard(output);
 					String command = input.readLine();
 				}
 			}

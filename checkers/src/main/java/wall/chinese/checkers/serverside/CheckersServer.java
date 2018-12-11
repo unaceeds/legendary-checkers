@@ -8,9 +8,8 @@ import wall.chinese.checkers.clientside.board.CogTypes;
 public class CheckersServer 
 {
 	private final int PORT = 9001;
-	private final int maxCountOfPlayers = 4;
+	private final int maxCountOfPlayers = 2;
 	private ServerSocket listener;
-			
 	
 	public CheckersServer() throws Exception
 	{

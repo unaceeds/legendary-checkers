@@ -9,16 +9,24 @@ public class CheckersClient {
 
 	private static final int PORT = 9001;
     private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    private BufferedReader input;
+    private PrintWriter output;
+    private String response;
     
     public CheckersClient() throws Exception
     {
+
 		socket = new Socket("localhost", PORT);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-	    out = new PrintWriter(socket.getOutputStream(), true);
+		input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	    output = new PrintWriter(socket.getOutputStream(), true);
 	    
 		CheckersClientGUI checkersClientGUI = new CheckersClientGUI();
+
+		while(true)
+		{
+			response = input.readLine();
+			checkersClientGUI.getBoard().interprete(response);
+		}
     }
 
 	public static void main(String[] args) throws Exception 

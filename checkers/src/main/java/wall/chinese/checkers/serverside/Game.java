@@ -92,9 +92,11 @@ public class Game
 		for(Field field: insideBoard.getFields())
 		{
 			if(field.getCogType() == CogTypes.EBP)
-				output.println("SUB " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+				output.println("SUB " + field.getCogType().toString() + " " + 
+					insideBoard.getFields().indexOf(field));
 			else
-				output.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
+				output.println("ADD " + field.getCogType().toString() + " " + 
+					insideBoard.getFields().indexOf(field));
 		}
 	}
 	public void sendPossibleMoves(PrintWriter output, CogTypes cogType, int fieldIndex, boolean afterJump)
@@ -135,13 +137,37 @@ public class Game
 		}
 
 		public void run()
-		{
+		{	//TODO: all operation should be done only if player == currentPlayer!!!
 			try
 			{
 				while(true)
 				{
 					sendWholeBoard(output);
 					String command = input.readLine();
+					String[] commands = command.split(" ");
+					if(commands[0].equals("BMOV"))
+					{
+						sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
+								Integer.parseInt(commands[2]), false);
+					}
+					else if(commands[0].equals("MOV"))
+					{
+						//TODO who checks move, client or server?
+						insideBoard.move(CogTypes.valueOf(commands[1]), Integer.parseInt(commands[2]), 
+								Integer.parseInt(commands[3]));
+						sendWholeBoard(output);
+						if(theWinnerIs() != null)
+						{
+							//TODO how to inform about end of game?
+						}
+						//TODO change player when commands[1] == commands[2]
+						if(wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) == true)
+						{
+							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
+									Integer.parseInt(commands[3]), true);
+						}
+						
+					}
 				}
 			}
 			catch(IOException e)
@@ -158,6 +184,21 @@ public class Game
             }
 		}
 		
+		private boolean wasJumped(int oldFieldIndex, int newFieldIndex)
+		{
+			if(oldFieldIndex == newFieldIndex)
+				return false;
+			List<Field> fields = insideBoard.getFields();
+			Field oldField = fields.get(oldFieldIndex);
+			for(int i = 0; i < oldField.getNeighbours().length; i++)
+			{
+				if(oldField.getNeighbours()[i] == newFieldIndex)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 		private void setOpponentCogType()
 		{
 			if(myCogType == CogTypes.EAX)

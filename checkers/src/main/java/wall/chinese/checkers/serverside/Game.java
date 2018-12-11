@@ -65,7 +65,26 @@ public class Game
 	
 	public Player theWinnerIs()
 	{
-		
+		CogTypes playerCogType;
+		int opponentSection;
+		List<List<Field>> playerSections = insideBoard.getPlayerSections();
+		for(Player player : players)
+		{
+			playerCogType = player.myCogType;
+			opponentSection = player.opponentCogType.ordinal();
+			for(Field field : playerSections.get(opponentSection))
+			{
+				if(field.getCogType() != playerCogType)
+				{
+					break;
+				}
+				// if it is the end of array, we have the winner
+				if(field == playerSections.get(opponentSection).get(playerSections.get(opponentSection).size() - 1))
+				{
+					return player;
+				}
+			}
+		}
 		return null;
 	}
 	public void sendWholeBoard(PrintWriter output)
@@ -77,6 +96,16 @@ public class Game
 			else
 				output.println("ADD " + field.getCogType().toString() + " " + insideBoard.getFields().indexOf(field));
 		}
+	}
+	public void sendPossibleMoves(PrintWriter output, CogTypes cogType, int fieldIndex, boolean afterJump)
+	{
+		List<Integer> possibleMoves = insideBoard.getPossibleMoves(cogType, fieldIndex, afterJump);
+		String command = "SUB " + cogType.toString() + " ";
+		for(int i = 0; i < possibleMoves.size(); i++)
+		{
+			command += possibleMoves.get(i) + " ";
+		}
+		output.println(command);
 	}
 	
 

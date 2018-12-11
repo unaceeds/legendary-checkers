@@ -21,6 +21,10 @@ public class InsideBoard
 	{
 		return fields;
 	}
+	public List<List<Field>> getPlayerSections()
+	{
+		return playerSections;
+	}
 	
 	private void generateFields() {
 		fields = new ArrayList<Field>();
@@ -154,6 +158,11 @@ public class InsideBoard
 		for(int i = 0; i < cogTypes.length; i++)
 			for(int j = 0; j < playerSections.get(cogTypes[i].ordinal()).size(); j++)
 				playerSections.get(cogTypes[i].ordinal()).get(j).setCogType(cogTypes[i]);
+	}
+	public void move(CogTypes cogType, int oldFieldIndex, int newFieldIndex)
+	{
+		fields.get(oldFieldIndex).setCogType(CogTypes.EBP);
+		fields.get(newFieldIndex).setCogType(cogType);
 	}
 	
 	// afterJump - false if it is after 'normal' move, true if it is after 'jump'

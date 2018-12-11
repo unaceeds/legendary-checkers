@@ -140,9 +140,10 @@ public class Game
 		{	//TODO: all operation should be done only if player == currentPlayer!!!
 			try
 			{
+				output.println("YOU " + myCogType.toString());
+				sendWholeBoard(output);
 				while(true)
 				{
-					sendWholeBoard(output);
 					String command = input.readLine();
 					String[] commands = command.split(" ");
 					if(commands[0].equals("BMOV"))

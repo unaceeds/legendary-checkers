@@ -1,6 +1,5 @@
 package wall.chinese.checkers.clientside.board;
 
-import java.awt.Color;
 import java.awt.Paint;
 import java.awt.geom.Ellipse2D;
 
@@ -16,8 +15,7 @@ public class Circle extends Ellipse2D.Double {
 
 	public Circle(double x, double y) {
 		super(x, y, 30, 30);
-		cogType = CogTypes.EBP;
-		this.setColor(cogType.getColor());
+		this.setCogType(CogTypes.EBP);
 		filled = false;
 	}
 
@@ -25,9 +23,10 @@ public class Circle extends Ellipse2D.Double {
 		return paint;
 	}
 
-	public void setColor(Color color) {
+	public void setCogType(CogTypes cogType) {
+		this.cogType = cogType;
 		this.paint = GradientBuilder.buildRadialGradient(this.getX(),
-				this.getY(), color);
+				this.getY(), cogType.getColor());
 	}
 
 	public void setFilled(boolean filled) {
@@ -36,6 +35,10 @@ public class Circle extends Ellipse2D.Double {
 
 	public boolean getFilled() {
 		return filled;
+	}
+
+	public CogTypes getCogType() {
+		return cogType;
 	}
 
 }

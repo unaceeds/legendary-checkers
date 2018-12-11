@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.PrintWriter;
 
 import javax.swing.JPanel;
 
@@ -19,7 +20,9 @@ public class VisualBoard extends JPanel implements MouseListener {
 
 	private static final int MAGIC = 4;
 
+	private CogTypes myCogType;
 	private Circle[] circles;
+	private PrintWriter output;
 
 	private static int[] colsInRows() {
 		int[] cols = new int[4 * MAGIC + 1];
@@ -34,13 +37,14 @@ public class VisualBoard extends JPanel implements MouseListener {
 		return cols;
 	}
 
-	public VisualBoard() {
+	public VisualBoard(PrintWriter output) {
 		super();
 		buildBoard();
 		addMouseListener(this);
 		setBackground(new Color(29, 29, 29));
 		setPreferredSize(
 				new Dimension(13 * 40, (int) (17 * 40 * Math.sqrt(3) / 2)));
+		this.output = output;
 	}
 
 	private void buildBoard() {
@@ -82,11 +86,13 @@ public class VisualBoard extends JPanel implements MouseListener {
 
 	public void mark(int index, CogTypes cogType, boolean fill) {
 		circles[index].setFilled(fill);
-		circles[index].setColor(cogType.getColor());
+		circles[index].setCogType(cogType);
 		repaint();
 	}
 
 	public void interprete(String query) {
+		if (query == null)
+			return;
 		String[] queries = query.split(" ");
 		AbstractCirclesExpression expr = CirclesExpressions.valueOf(queries[0])
 				.getCirclesExpression(this);
@@ -99,7 +105,23 @@ public class VisualBoard extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
+		for (int i = 0; i < 121; i++) {
+			if (circles[i].getBounds2D().contains(e.getX(), e.getY())) {
+				if (circles[i].getCogType() == myCogType
+						&& circles[i].getFilled()) {
+					output.println("BMOV " + getMyCogType().toString() + " "
+							+ Integer.toString(i));
+					selected = i;
+				} else if (circles[i].getCogType() == myCogType
+						&& !circles[i].getFilled()) {
+					output.println("MOV " + getMyCogType().toString() + " "
+							+ Integer.toString(selected) + " "
+							+ Integer.toString(i));
+					selected = i;
+				}
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -114,29 +136,32 @@ public class VisualBoard extends JPanel implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		for (int i = 0; i < 121; i++) {
-			if (circles[i].getBounds2D().contains(e.getX(), e.getY())) {
-				System.out.println("selected " + Integer.toString(i));
-				selected = i;
-				break;
-			}
-		}
+		/*
+		 * for (int i = 0; i < 121; i++) { if
+		 * (circles[i].getBounds2D().contains(e.getX(), e.getY())) {
+		 * System.out.println("selected " + Integer.toString(i)); selected = i;
+		 * break; } }
+		 */
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		for (int i = 0; i < 121; i++) {
-			if (circles[i].getBounds2D().contains(e.getX(), e.getY())) {
-				if (selected >= 0) {
-					String query = "MOV EAX " + Integer.toString(selected) + " "
-							+ Integer.toString(i);
-					System.out.println(query);
-					interprete(query);
-					selected = -1;
-				}
-				break;
-			}
-		}
+		/*
+		 * for (int i = 0; i < 121; i++) { if
+		 * (circles[i].getBounds2D().contains(e.getX(), e.getY())) { if
+		 * (selected >= 0) { String query = "MOV EAX " +
+		 * Integer.toString(selected) + " " + Integer.toString(i);
+		 * System.out.println(query); interprete(query); selected = -1; } break;
+		 * } }
+		 */
+	}
+
+	public CogTypes getMyCogType() {
+		return myCogType;
+	}
+
+	public void setMyCogType(CogTypes myCogType) {
+		this.myCogType = myCogType;
 	}
 
 }

@@ -8,8 +8,16 @@ import wall.chinese.checkers.clientside.board.CogTypes;
 
 public class InsideBoard 
 {
+	
+	/**
+	 * This int says about number of rows in one player section, in one triangle. (?)
+	 */
 	private static int MAGIC = 4;
 	private List<Field> fields;
+	/**
+	 * List of all triangles of star, they are starting positions for players.
+	 * Every list contains list of fields in given player section.
+	 */
 	private List<List<Field>> playerSections;
 	
 	public InsideBoard() {
@@ -26,17 +34,10 @@ public class InsideBoard
 		return playerSections;
 	}
 	
-	private void generateFields() {
-		fields = new ArrayList<Field>();
-		for (int row = 0; row < 4*MAGIC + 1; row++) {
-			for (int col = 0; col < countInRow(row); col++) {
-				Field field = new Field(row);
-				fields.add(field);
-				setNeighboursFor(field);
-			}
-		}
-	}
-	
+	/**
+	 * @param row says which row should be summed up
+	 * @return number of fields in row
+	 */
 	private static int countInRow(int row) {
 		if (row >= 0 && row < MAGIC)
 			return (row + 1);
@@ -48,7 +49,24 @@ public class InsideBoard
 			return MAGIC - (row - 3*MAGIC - 1);
 		return 0;
 	}
+	/**
+	 * Sets initial state of fields.
+	 */
+	private void generateFields() {
+		fields = new ArrayList<Field>();
+		for (int row = 0; row < 4*MAGIC + 1; row++) {
+			for (int col = 0; col < countInRow(row); col++) {
+				Field field = new Field(row);
+				fields.add(field);
+				setNeighboursFor(field);
+			}
+		}
+	}
 	
+	
+	/**
+	 * Instantiates and fills every playerSection.
+	 */
 	private void preparePlayerSections() {
 		int oneSum = MAGIC*(MAGIC+1)/2;
 		playerSections = new ArrayList<List<Field>>();
@@ -65,6 +83,13 @@ public class InsideBoard
 		preparePlayerSection(5, 0, fields.get(oneSum + MAGIC - 1));
 	}
 	
+	
+	/**
+	 * Fills one of player section with fields.
+	 * @param section number of section, sorted as {@link CogTypes}
+	 * @param j 
+	 * @param field
+	 */
 	private void preparePlayerSection(int section, int j, Field field) {
 		playerSections.get(section).add(field);
 		//playerSections.get(section).get(playerSections.get(section).size()-1).setFill(true);
@@ -114,6 +139,10 @@ public class InsideBoard
 		}
 	}
 	
+	/**
+	 * Fills neighbours array with correct indices.
+	 * @param field Field, for which neighbours should be set.
+	 */
 	private void setNeighboursFor(Field field) {
 		int index = fields.indexOf(field);
 		int row = field.getRow();
@@ -140,6 +169,10 @@ public class InsideBoard
 		}
 	}
 	
+	/**
+	 * @param field Field, for which neighbour should be set.
+	 * @param neighbourIndex Index of neighbour that should be set for field.
+	 */
 	private void setNeighbourFor(Field field, int neighbourIndex) {
 		int index = fields.indexOf(field);
 		int row = field.getRow();
@@ -153,40 +186,56 @@ public class InsideBoard
 		}
 	}
 
+	/**
+	 * Filled proper player sections with proper cogTypes.
+	 * @param cogTypes Array representing cogTypes of players.
+	 */
 	public void fillStartedBoard(CogTypes[] cogTypes) 
 	{
 		for(int i = 0; i < cogTypes.length; i++)
 			for(int j = 0; j < playerSections.get(cogTypes[i].ordinal()).size(); j++)
 				playerSections.get(cogTypes[i].ordinal()).get(j).setCogType(cogTypes[i]);
 	}
+	
+	/**
+	 * Moves pawn on board.
+	 * @param cogType cogType of player who wants to move 
+	 * @param oldFieldIndex index of field that player starts from
+	 * @param newFieldIndex index of field that player ends on
+	 */
 	public void move(CogTypes cogType, int oldFieldIndex, int newFieldIndex)
 	{
 		fields.get(oldFieldIndex).setCogType(CogTypes.EBP);
 		fields.get(newFieldIndex).setCogType(cogType);
 	}
 	
-	// afterJump - false if it is after 'normal' move, true if it is after 'jump'
+	/**
+	 * @param cogType cogType of player
+	 * @param fieldIndex index of field for which player wants to see possible moves
+	 * @param afterJump false if it is after 'normal' move, true if it is after 'jump' over another pawn
+	 * @return list of indices of fields on which moves are possible
+	 */
 	public List<Integer> getPossibleMoves(CogTypes cogType, int fieldIndex, boolean afterJump)
 	{
 		List<Integer> possibleMoves = new ArrayList<Integer>();
-		if(fields.get(fieldIndex).getCogType() != cogType) // pionek nie jest nasz
+		if(fields.get(fieldIndex).getCogType() != cogType) // pawn is not ours
 			return possibleMoves;
 		if(afterJump == false)
 		{
 			for(int i = 0; i < fields.get(fieldIndex).getNeighbours().length; i++)
 			{
-				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //sasiad istnieje
-				{	//sasiad nie jest zajety
+				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //neighbour exists
+				{	//neighbour is not occupied
 					if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getCogType() == CogTypes.EBP)
 					{ 
 						possibleMoves.add(fields.get(fieldIndex).getNeighbours()[i]);
 					}
-					//sasiad jest zajety
+					//neighbour is occupied
 					else
 					{	
 						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
 								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
-								.getCogType() == CogTypes.EBP ) // sasiad sasiada istnieje i nie jest zajety
+								.getCogType() == CogTypes.EBP ) //neighbour of neighbour exists and isn't occupied
 						{
 							possibleMoves.add(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i]);
 						}
@@ -200,10 +249,10 @@ public class InsideBoard
 		{
 			for(int i = 0; i < fields.get(fieldIndex).getNeighbours().length; i++)
 			{
-				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //sasiad istnieje
-				{	//sasiad jest zajety
+				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //neighbour exists
+				{	//neighbour is occupied
 					if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getCogType() != CogTypes.EBP)
-					{	//sasiad sasiada istnieje i nie jest zajety
+					{	//neighbour of neighbour exists and isn't occupied
 						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
 								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
 								.getCogType() == CogTypes.EBP)

@@ -12,18 +12,36 @@ import java.io.PrintWriter;
 
 import javax.swing.JPanel;
 
+import wall.chinese.checkers.clientside.builders.GradientBuilder;
 import wall.chinese.checkers.clientside.interpreter.AbstractCirclesExpression;
 import wall.chinese.checkers.clientside.interpreter.CirclesExpressions;
 
+/**
+ * The Class VisualBoard.
+ */
 @SuppressWarnings("serial")
 public class VisualBoard extends JPanel implements MouseListener {
 
+	/** The Constant MAGIC. */
 	private static final int MAGIC = 4;
 
+	/** The my cog type. */
 	private CogTypes myCogType;
+
+	/** The circles. */
 	private Circle[] circles;
+
+	/** The output. */
 	private PrintWriter output;
 
+	/** The message. */
+	private String message;
+
+	/**
+	 * Cols in rows.
+	 *
+	 * @return the int[]
+	 */
 	private static int[] colsInRows() {
 		int[] cols = new int[4 * MAGIC + 1];
 		for (int row = 0; row < MAGIC; row++)
@@ -37,6 +55,11 @@ public class VisualBoard extends JPanel implements MouseListener {
 		return cols;
 	}
 
+	/**
+	 * Instantiates a new visual board.
+	 *
+	 * @param output the output
+	 */
 	public VisualBoard(PrintWriter output) {
 		super();
 		buildBoard();
@@ -45,8 +68,13 @@ public class VisualBoard extends JPanel implements MouseListener {
 		setPreferredSize(
 				new Dimension(13 * 40, (int) (17 * 40 * Math.sqrt(3) / 2)));
 		this.output = output;
+		this.myCogType = CogTypes.EBP;
+		this.message = "";
 	}
 
+	/**
+	 * Builds the board.
+	 */
 	private void buildBoard() {
 		circles = new Circle[121];
 		int index = 0;
@@ -61,6 +89,11 @@ public class VisualBoard extends JPanel implements MouseListener {
 		}
 	}
 
+	/**
+	 * Draw board.
+	 *
+	 * @param g2 the g 2
+	 */
 	private void drawBoard(Graphics2D g2) {
 		for (int i = 0; i < 121; i++) {
 			g2.setPaint(circles[i].getPaint());
@@ -74,6 +107,11 @@ public class VisualBoard extends JPanel implements MouseListener {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -82,58 +120,103 @@ public class VisualBoard extends JPanel implements MouseListener {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		drawBoard(g2);
+		g2.setPaint(GradientBuilder.buildRadialGradient(10, 10,
+				myCogType.getColor()));
+		g2.drawString(message, 10, 10);
+		g2.setPaint(GradientBuilder.buildRadialGradient(10, 30,
+				myCogType.getColor()));
+		g2.drawString("TWOJ KOLOR", 10, 30);
 	}
 
+	/**
+	 * Mark.
+	 *
+	 * @param index   the index
+	 * @param cogType the cog type
+	 * @param fill    the fill
+	 */
 	public void mark(int index, CogTypes cogType, boolean fill) {
 		circles[index].setFilled(fill);
 		circles[index].setCogType(cogType);
 		repaint();
 	}
 
+	/**
+	 * Interprete.
+	 *
+	 * @param query the query
+	 */
 	public void interprete(String query) {
 		if (query == null)
 			return;
 		String[] queries = query.split(" ");
-		AbstractCirclesExpression expr = CirclesExpressions.valueOf(queries[0])
-				.getCirclesExpression(this);
-		if (expr != null) {
+		CirclesExpressions circ = CirclesExpressions.valueOf(queries[0]);
+		if (circ != null) {
+			AbstractCirclesExpression expr = circ.getCirclesExpression(this);
 			expr.interpreteQueries(queries);
 		}
 	}
 
-	int selected = -1;
+	/** The selected. */
+	public int selected = -1;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		for (int i = 0; i < 121; i++) {
 			if (circles[i].getBounds2D().contains(e.getX(), e.getY())) {
-				if (circles[i].getCogType() == myCogType
-						&& circles[i].getFilled()) {
-					output.println("BMOV " + getMyCogType().toString() + " "
-							+ Integer.toString(i));
-					selected = i;
-				} else if (circles[i].getCogType() == myCogType
-						&& !circles[i].getFilled()) {
-					output.println("MOV " + getMyCogType().toString() + " "
-							+ Integer.toString(selected) + " "
-							+ Integer.toString(i));
-					selected = i;
+				if (circles[i].getCogType() == myCogType) {
+					if (circles[i].getFilled()) {
+						if (selected == i) {
+							output.println("MOV " + getMyCogType().toString()
+									+ " " + Integer.toString(selected) + " "
+									+ Integer.toString(i));
+							selected = -1;
+						} else {
+							output.println("BMOV " + getMyCogType().toString()
+									+ " " + Integer.toString(i));
+							selected = i;
+						}
+					} else {
+						output.println("MOV " + getMyCogType().toString() + " "
+								+ Integer.toString(selected) + " "
+								+ Integer.toString(i));
+						selected = i;
+					}
 				}
-				break;
 			}
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseEntered(MouseEvent e) {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseExited(MouseEvent e) {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
 		/*
@@ -144,6 +227,12 @@ public class VisualBoard extends JPanel implements MouseListener {
 		 */
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		/*
@@ -156,12 +245,31 @@ public class VisualBoard extends JPanel implements MouseListener {
 		 */
 	}
 
+	/**
+	 * Gets the my cog type.
+	 *
+	 * @return the my cog type
+	 */
 	public CogTypes getMyCogType() {
 		return myCogType;
 	}
 
+	/**
+	 * Sets the my cog type.
+	 *
+	 * @param myCogType the new my cog type
+	 */
 	public void setMyCogType(CogTypes myCogType) {
 		this.myCogType = myCogType;
+	}
+
+	/**
+	 * Sets the message.
+	 *
+	 * @param message the new message
+	 */
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 }

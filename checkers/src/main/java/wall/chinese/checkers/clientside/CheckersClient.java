@@ -5,14 +5,31 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * The Class CheckersClient.
+ */
 public class CheckersClient {
 
+	/** The Constant PORT. */
 	private static final int PORT = 9001;
+	
+	/** The socket. */
 	private Socket socket;
+	
+	/** The input. */
 	private BufferedReader input;
+	
+	/** The output. */
 	private PrintWriter output;
+	
+	/** The response. */
 	private String response;
 
+	/**
+	 * Instantiates a new checkers client.
+	 *
+	 * @throws Exception the exception
+	 */
 	public CheckersClient() throws Exception {
 
 		socket = new Socket("localhost", PORT);
@@ -29,6 +46,12 @@ public class CheckersClient {
 		}
 	}
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 * @throws Exception the exception
+	 */
 	public static void main(String[] args) throws Exception {
 		new CheckersClient();
 	}

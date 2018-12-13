@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import wall.chinese.checkers.clientside.board.CogTypes;
-import wall.chinese.checkers.serverside.Game.Player;
 
 /**
  * Represents single game, {@link Player} is inner class.
@@ -165,6 +163,7 @@ public class Game
 		if(players[i].finishedGame) // if somebody finished game, he can't play
 			changePlayer();
 		currentPlayer = players[i];
+		System.out.println(currentPlayer.myCogType.toString());
 	}
 	private boolean isEveryoneFinished()
 	{
@@ -209,6 +208,7 @@ public class Game
             }
 		}
 
+		@Override
 		public void run()
 		{	
 			try

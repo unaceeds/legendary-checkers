@@ -1,19 +1,18 @@
 package wall.chinese.checkers.clientside.interpreter;
 
-import wall.chinese.checkers.clientside.board.CogTypes;
 import wall.chinese.checkers.clientside.board.VisualBoard;
 
 /**
- * The Class MovCirclesExpression.
+ * The Class MulCirclesExpression.
  */
-public class MovCirclesExpression extends AbstractCirclesExpression {
+public class MulCirclesExpression extends AbstractCirclesExpression {
 
 	/**
-	 * Instantiates a new mov circles expression.
+	 * Instantiates a new mul circles expression.
 	 *
 	 * @param visualBoard the visual board
 	 */
-	public MovCirclesExpression(VisualBoard visualBoard) {
+	public MulCirclesExpression(VisualBoard visualBoard) {
 		super(visualBoard);
 	}
 
@@ -26,9 +25,12 @@ public class MovCirclesExpression extends AbstractCirclesExpression {
 	 */
 	@Override
 	public void interpreteQueries(String[] queries) {
-		visualBoard.mark(Integer.parseInt(queries[2]), CogTypes.EBP, false);
-		visualBoard.mark(Integer.parseInt(queries[3]),
-				CogTypes.valueOf(queries[1]), true);
+		String abc = queries[1];
+		for (int i = 2; i < queries.length; i++) {
+			abc += " " + queries[i];
+		}
+		visualBoard.setMessage(abc);
+		visualBoard.selected = -1;
 	}
 
 }

@@ -25,6 +25,10 @@ public class Game
 	 */
 	private int maxCountOfPlayers;
 	private int countOfConnectedPlayers = 0;
+	/**
+	 * False if at least one player is still playing, true if everyone finished.
+	 */
+	private boolean allFinished = false;
 	private Player[] players;
 	/**
 	 * Player whose round is now and who only can do something on board at the moment.
@@ -73,6 +77,7 @@ public class Game
 		{
 			players[countOfConnectedPlayers] = player;
 			countOfConnectedPlayers++;
+			player.number = countOfConnectedPlayers;
 		}
 	}
 	
@@ -160,16 +165,21 @@ public class Game
 			i = 0;
 		else
 			i++;
-		if(players[i].finishedGame) // if somebody finished game, he can't play
+		if(players[i].finished) // if somebody finished game, he can't play
 			changePlayer();
 		currentPlayer = players[i];
-		System.out.println(currentPlayer.myCogType.toString());
+		sendMessageToEveryone("Now player number " + currentPlayer.number + " is playing");
+	}
+	private void sendMessageToEveryone(String message)
+	{
+		for(Player player: players)
+			player.output.println("MUL " + message);
 	}
 	private boolean isEveryoneFinished()
 	{
 		int winners = 0;
 		for(int j = 0; j < players.length; j++)
-			if(players[j].finishedGame)
+			if(players[j].finished)
 				winners++;
 		if(winners == players.length)
 		{
@@ -185,12 +195,13 @@ public class Game
 	 */
 	class Player extends Thread
 	{
+		private int number;
 		private Socket socket;
 		private BufferedReader input;
 		private PrintWriter output;
 		private CogTypes myCogType; 
 		private CogTypes opponentCogType;
-		private boolean finishedGame = false;
+		private boolean finished = false;
 		
 		public Player(Socket socket, int indexOfPlayer)
 		{
@@ -214,19 +225,20 @@ public class Game
 			try
 			{
 				output.println("YOU " + myCogType.toString()); // tell client which cogType is his
+				sendMessageToEveryone("Now player number " + currentPlayer.number + " is playing");
 				sendWholeBoardToPlayers();
 				while(true) //infinity loop that reads input from client and react
 				{
 					String command = input.readLine();
 					//System.out.println(command);
 					String[] commands = command.split(" ");
-					if(commands[0].equals("BMOV") && isGoodPlayer()) //before mov - sending possible moves
+					if(commands[0].equals("BMOV") && isGoodPlayer() && !allFinished) //before mov - sending possible moves
 					{
 						sendWholeBoardToPlayers();
 						sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
 								Integer.parseInt(commands[2]), false);
 					}
-					else if(commands[0].equals("MOV")) // move
+					else if(commands[0].equals("MOV") && !allFinished) // move
 					{
 						if(isGoodPlayer())
 							insideBoard.move(CogTypes.valueOf(commands[1]), Integer.parseInt(commands[2]), 
@@ -234,11 +246,12 @@ public class Game
 						sendWholeBoardToPlayers();
 						if(isWinner(this) && isGoodPlayer())
 						{
-							//TODO how to inform about end of game?
-							finishedGame = true;
+							sendMessageToEveryone("Player number " + number + " successfully finished his game");
+							finished = true;
 							if(isEveryoneFinished())
 							{
-								//TODO what to do when everyone finished?
+								allFinished = true; 
+								sendMessageToEveryone("End of the game, everyone successfully finished");
 							}
 						}
 						if(Integer.parseInt(commands[2]) == Integer.parseInt(commands[3])) // MOV 2 2 - end of jumping

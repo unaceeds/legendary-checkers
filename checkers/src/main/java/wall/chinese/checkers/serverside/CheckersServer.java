@@ -8,7 +8,7 @@ import wall.chinese.checkers.clientside.board.CogTypes;
 public class CheckersServer 
 {
 	private final int PORT = 9001;
-	private final int maxCountOfPlayers = 2;
+	private final int maxCountOfPlayers = 4;
 	private ServerSocket listener;
 	
 	public CheckersServer() throws Exception
@@ -20,6 +20,8 @@ public class CheckersServer
             Game game = new Game(maxCountOfPlayers);
             for(int i = 0; i < maxCountOfPlayers; i++)
             	game.addPlayer(game.new Player(listener.accept(), i));
+            
+            game.setRandomCurrentPlayer();
             
             for(int i = 0; i < game.getPlayers().length; i++)
             	game.getPlayers()[i].start();

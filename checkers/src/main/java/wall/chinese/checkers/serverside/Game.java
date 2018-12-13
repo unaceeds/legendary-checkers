@@ -7,12 +7,14 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import wall.chinese.checkers.clientside.board.CogTypes;
 import wall.chinese.checkers.serverside.Game.Player;
 
 public class Game 
-{
+{	//TODO what should be synchronized?
+	//TODO player can give up
 	private InsideBoard insideBoard;
 	private int maxCountOfPlayers;
 	private int countOfConnectedPlayers = 0;
@@ -62,44 +64,47 @@ public class Game
 	{
 		return players;
 	}
-	
-	public Player theWinnerIs()
+	public void setRandomCurrentPlayer()
+	{
+		int rnd = new Random().nextInt(players.length);
+		currentPlayer = players[rnd];
+	}
+	private boolean isWinner(Player player)
 	{
 		CogTypes playerCogType;
 		int opponentSection;
 		List<List<Field>> playerSections = insideBoard.getPlayerSections();
-		for(Player player : players)
+		playerCogType = player.myCogType;
+		opponentSection = player.opponentCogType.ordinal();
+		for(Field field : playerSections.get(opponentSection))
 		{
-			playerCogType = player.myCogType;
-			opponentSection = player.opponentCogType.ordinal();
-			for(Field field : playerSections.get(opponentSection))
+			if(field.getCogType() != playerCogType)
 			{
-				if(field.getCogType() != playerCogType)
-				{
-					break;
-				}
-				// if it is the end of array, we have the winner
-				if(field == playerSections.get(opponentSection).get(playerSections.get(opponentSection).size() - 1))
-				{
-					return player;
-				}
+				break;
+			}
+			// if it is the end of array, we have the winner
+			if(field == playerSections.get(opponentSection).get(playerSections.get(opponentSection).size() - 1))
+			{
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
-	public void sendWholeBoard(PrintWriter output)
+	private void sendWholeBoardToPlayers()
 	{
 		for(Field field: insideBoard.getFields())
 		{
 			if(field.getCogType() == CogTypes.EBP)
-				output.println("SUB " + field.getCogType().toString() + " " + 
-					insideBoard.getFields().indexOf(field));
+				for(int i = 0; i < players.length; i++)
+					players[i].output.println("SUB " + field.getCogType().toString() + " " + 
+						insideBoard.getFields().indexOf(field));
 			else
-				output.println("ADD " + field.getCogType().toString() + " " + 
-					insideBoard.getFields().indexOf(field));
+				for(int i = 0; i < players.length; i++)
+					players[i].output.println("ADD " + field.getCogType().toString() + " " + 
+						insideBoard.getFields().indexOf(field));
 		}
 	}
-	public void sendPossibleMoves(PrintWriter output, CogTypes cogType, int fieldIndex, boolean afterJump)
+	private void sendPossibleMoves(PrintWriter output, CogTypes cogType, int fieldIndex, boolean afterJump)
 	{
 		List<Integer> possibleMoves = insideBoard.getPossibleMoves(cogType, fieldIndex, afterJump);
 		String command = "SUB " + cogType.toString() + " ";
@@ -109,7 +114,32 @@ public class Game
 		}
 		output.println(command);
 	}
-	
+
+	private void changePlayer()
+	{
+		int i = 0;
+		while(players[i] != currentPlayer)
+			i++;
+		if(i == players.length - 1)
+			i = 0;
+		else
+			i++;
+		if(players[i].finishedGame)
+			changePlayer();
+		currentPlayer = players[i];
+	}
+	private boolean isEveryoneFinished()
+	{
+		int winners = 0;
+		for(int j = 0; j < players.length; j++)
+			if(players[j].finishedGame)
+				winners++;
+		if(winners == players.length)
+		{
+			return true;
+		}
+		return false;
+	}
 
 	
 	class Player extends Thread
@@ -119,6 +149,7 @@ public class Game
 		private PrintWriter output;
 		private CogTypes myCogType; 
 		private CogTypes opponentCogType;
+		private boolean finishedGame = false;
 		
 		public Player(Socket socket, int indexOfPlayer)
 		{
@@ -137,36 +168,51 @@ public class Game
 		}
 
 		public void run()
-		{	//TODO: all operation should be done only if player == currentPlayer!!!
+		{	
 			try
 			{
 				output.println("YOU " + myCogType.toString());
-				sendWholeBoard(output);
+				sendWholeBoardToPlayers();
 				while(true)
 				{
 					String command = input.readLine();
+					//System.out.println(command);
 					String[] commands = command.split(" ");
-					if(commands[0].equals("BMOV"))
+					if(commands[0].equals("BMOV") && isGoodPlayer())
 					{
+						sendWholeBoardToPlayers();
 						sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
 								Integer.parseInt(commands[2]), false);
 					}
 					else if(commands[0].equals("MOV"))
 					{
-						//TODO who checks move, client or server?
-						insideBoard.move(CogTypes.valueOf(commands[1]), Integer.parseInt(commands[2]), 
+						if(isGoodPlayer())
+							insideBoard.move(CogTypes.valueOf(commands[1]), Integer.parseInt(commands[2]), 
 								Integer.parseInt(commands[3]));
-						sendWholeBoard(output);
-						if(theWinnerIs() != null)
+						sendWholeBoardToPlayers();
+						if(isWinner(this) && isGoodPlayer())
 						{
 							//TODO how to inform about end of game?
+							finishedGame = true;
+							if(isEveryoneFinished())
+							{
+								//TODO what to do when everyone finished?
+							}
 						}
-						//TODO change player when commands[1] == commands[2]
-						if(wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) == true)
+						if(Integer.parseInt(commands[2]) == Integer.parseInt(commands[3]))
+						{
+							sendWholeBoardToPlayers();
+							if(isGoodPlayer())
+								changePlayer();
+						}
+						if(wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) && 
+								isGoodPlayer())
 						{
 							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
 									Integer.parseInt(commands[3]), true);
 						}
+						else if(isGoodPlayer())
+							changePlayer();
 						
 					}
 				}
@@ -215,7 +261,17 @@ public class Game
 			else if (myCogType == CogTypes.EFX)
 				opponentCogType = CogTypes.ECX;
 		}
-		
+		private boolean isGoodPlayer()
+		{
+			int i = 0;
+			while(startPlayers[i] != myCogType)
+				i++;
+			
+			if(players[i] == currentPlayer)
+				return true;
+			else
+				return false;
+		}
 	}
 }
 

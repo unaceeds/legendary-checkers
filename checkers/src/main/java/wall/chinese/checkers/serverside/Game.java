@@ -16,7 +16,6 @@ import wall.chinese.checkers.clientside.board.CogTypes;
  */
 public class Game 
 {	//TODO what should be synchronized?
-	//TODO PLAYER CAN'T MOVE OUT OF OPPONENT SECTION!
 	
 	private InsideBoard insideBoard;
 	/**
@@ -99,18 +98,18 @@ public class Game
 	private boolean isWinner(Player player)
 	{
 		CogTypes playerCogType;
-		int opponentSection;
+		int oppositeSection;
 		List<List<Field>> playerSections = insideBoard.getPlayerSections();
 		playerCogType = player.myCogType;
-		opponentSection = player.opponentCogType.ordinal();
-		for(Field field : playerSections.get(opponentSection))
+		oppositeSection = player.oppositeCogType.ordinal();
+		for(Field field : playerSections.get(oppositeSection))
 		{
 			if(field.getCogType() != playerCogType)
 			{
 				break;
 			}
 			// if it is the end of array, we have the winner
-			if(field == playerSections.get(opponentSection).get(playerSections.get(opponentSection).size() - 1))
+			if(field == playerSections.get(oppositeSection).get(playerSections.get(oppositeSection).size() - 1))
 			{
 				return true;
 			}
@@ -138,12 +137,13 @@ public class Game
 	/**
 	 * @param output output which function should send response to
 	 * @param cogType {@link InsideBoard#getPossibleMoves}
+	 * @param oppCogType {@link InsideBoard#getPossibleMoves}
 	 * @param fieldIndex {@link InsideBoard#getPossibleMoves}
 	 * @param afterJump {@link InsideBoard#getPossibleMoves}
 	 */
-	private void sendPossibleMoves(PrintWriter output, CogTypes cogType, int fieldIndex, boolean afterJump)
+	private void sendPossibleMoves(PrintWriter output, CogTypes cogType, CogTypes oppCogType, int fieldIndex, boolean afterJump)
 	{
-		List<Integer> possibleMoves = insideBoard.getPossibleMoves(cogType, fieldIndex, afterJump);
+		List<Integer> possibleMoves = insideBoard.getPossibleMoves(cogType, oppCogType, fieldIndex, afterJump);
 		String command = "SUB " + cogType.toString() + " ";
 		for(int i = 0; i < possibleMoves.size(); i++)
 		{
@@ -199,14 +199,14 @@ public class Game
 		private BufferedReader input;
 		private PrintWriter output;
 		private CogTypes myCogType; 
-		private CogTypes opponentCogType;
+		private CogTypes oppositeCogType;
 		private boolean finished = false;
 		
 		public Player(Socket socket, int indexOfPlayer)
 		{
 			this.socket = socket;
 			myCogType = startPlayers[indexOfPlayer];
-			setOpponentCogType();
+			setOppositeCogType();
             try 
             {
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -239,14 +239,15 @@ public class Game
 						sendWholeBoardToPlayers();
 						//solution of following cheat: jump, an then request BMOV for another pawn
 						if(prevCommands == null || prevCommands.length != 4 ||  
-								!wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
+								!insideBoard.wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
 						{
-							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
+							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), oppositeCogType,
 									Integer.parseInt(commands[2]), false);
 						}
 						else if(prevCommands != null && prevCommands.length == 4 && 
-								wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
+								insideBoard.wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
 						{
+							prevCommands = null;
 							changePlayer();
 						}
 					}
@@ -272,10 +273,10 @@ public class Game
 								changePlayer();
 						}
 						
-						if(wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) && 
+						if(insideBoard.wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) && 
 								isGoodPlayer() && !allFinished)
 						{	// after jump we immediately want to show possibilites 
-							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
+							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), oppositeCogType,
 									Integer.parseInt(commands[3]), true);
 						}
 						else if(isGoodPlayer() && !allFinished) // after normal move
@@ -306,42 +307,22 @@ public class Game
 		}
 		
 		/**
-		 * @param oldFieldIndex index of field that player starts from
-		 * @param newFieldIndex index of field that player ends on
-		 * @return true if move was 'jump' over another pawn, false if move was 'normal' 
-		 */
-		private boolean wasJumped(int oldFieldIndex, int newFieldIndex)
-		{
-			if(oldFieldIndex == newFieldIndex)
-				return false;
-			List<Field> fields = insideBoard.getFields();
-			Field oldField = fields.get(oldFieldIndex);
-			for(int i = 0; i < oldField.getNeighbours().length; i++)
-			{	//check if move was only to close neighbour or somewhere further
-				if(oldField.getNeighbours()[i] == newFieldIndex)
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-		/**
 		 * Sets who is our opponent, it is symetric
 		 */
-		private void setOpponentCogType()
+		private void setOppositeCogType()
 		{
 			if(myCogType == CogTypes.EAX)
-				opponentCogType = CogTypes.EDX;
+				oppositeCogType = CogTypes.EDX;
 			else if (myCogType == CogTypes.EBX)
-				opponentCogType = CogTypes.EEX;
+				oppositeCogType = CogTypes.EEX;
 			else if (myCogType == CogTypes.ECX)
-				opponentCogType = CogTypes.EFX;
+				oppositeCogType = CogTypes.EFX;
 			else if (myCogType == CogTypes.EDX)
-				opponentCogType = CogTypes.EAX;
+				oppositeCogType = CogTypes.EAX;
 			else if (myCogType == CogTypes.EEX)
-				opponentCogType = CogTypes.EBX;
+				oppositeCogType = CogTypes.EBX;
 			else if (myCogType == CogTypes.EFX)
-				opponentCogType = CogTypes.ECX;
+				oppositeCogType = CogTypes.ECX;
 		}
 		/**
 		 * @return true if this player has now his round, false otherwise

@@ -1,7 +1,6 @@
 package wall.chinese.checkers.serverside;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import wall.chinese.checkers.clientside.board.CogTypes;
@@ -211,12 +210,13 @@ public class InsideBoard
 	
 	/**
 	 * @param cogType cogType of player
+	 * @param oppCogType 
 	 * @param fieldIndex index of field for which player wants to see possible moves
 	 * @param afterJump false if it is after 'normal' move, true if it is after 'jump' over another pawn
 	 * @return list of indices of fields on which moves are possible
 	 */
-	public List<Integer> getPossibleMoves(CogTypes cogType, int fieldIndex, boolean afterJump)
-	{
+	public List<Integer> getPossibleMoves(CogTypes cogType, CogTypes oppCogType, int fieldIndex, boolean afterJump)
+	{//TODO use oppCogType
 		List<Integer> possibleMoves = new ArrayList<Integer>();
 		if(fields.get(fieldIndex).getCogType() != cogType) // pawn is not ours
 			return possibleMoves;
@@ -227,8 +227,10 @@ public class InsideBoard
 				if(fields.get(fieldIndex).getNeighbours()[i] != -1) //neighbour exists
 				{	//neighbour is not occupied
 					if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getCogType() == CogTypes.EBP)
-					{ 
-						possibleMoves.add(fields.get(fieldIndex).getNeighbours()[i]);
+					{	// can't move out of opponent section
+						if(!isInPlayerSection(fieldIndex, oppCogType.ordinal()) ||
+								isInPlayerSection(fields.get(fieldIndex).getNeighbours()[i], oppCogType.ordinal()))
+							possibleMoves.add(fields.get(fieldIndex).getNeighbours()[i]);
 					}
 					//neighbour is occupied
 					else
@@ -236,7 +238,10 @@ public class InsideBoard
 						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
 								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
 								.getCogType() == CogTypes.EBP ) //neighbour of neighbour exists and isn't occupied
-						{
+						{	// can't move out of opponent section
+							if(!isInPlayerSection(fieldIndex, oppCogType.ordinal()) ||
+									isInPlayerSection(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i], 
+											oppCogType.ordinal()))
 							possibleMoves.add(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i]);
 						}
 							
@@ -256,7 +261,10 @@ public class InsideBoard
 						if(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i] != -1 &&
 								fields.get(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i])
 								.getCogType() == CogTypes.EBP)
-						{
+						{	// can't move out of opponent section
+							if(!isInPlayerSection(fieldIndex, oppCogType.ordinal()) ||
+									isInPlayerSection(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i], 
+											oppCogType.ordinal()))
 							possibleMoves.add(fields.get(fields.get(fieldIndex).getNeighbours()[i]).getNeighbours()[i]);
 						}
 					}
@@ -265,5 +273,37 @@ public class InsideBoard
 		}
 		
 		return possibleMoves;
+	}
+	/**
+	 * @param oldFieldIndex index of field that player starts from
+	 * @param newFieldIndex index of field that player ends on
+	 * @return true if move was 'jump' over another pawn, false if move was 'normal' 
+	 */
+	public boolean wasJumped(int oldFieldIndex, int newFieldIndex)
+	{
+		if(oldFieldIndex == newFieldIndex)
+			return false;
+		List<Field> fields = getFields();
+		Field oldField = fields.get(oldFieldIndex);
+		for(int i = 0; i < oldField.getNeighbours().length; i++)
+		{	//check if move was only to close neighbour or somewhere further
+			if(oldField.getNeighbours()[i] == newFieldIndex)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
+	 * @return true if given playerSection contains given field, false otherwise
+	 */
+	private boolean isInPlayerSection(int fieldIndex, int playerSectionIndex)
+	{
+		for(int i = 0; i < playerSections.get(playerSectionIndex).size(); i++)
+		{
+			if(fields.get(fieldIndex) == playerSections.get(playerSectionIndex).get(i))
+				return true;
+		}
+		return false;
 	}
 }

@@ -3,7 +3,6 @@ package wall.chinese.checkers.serverside;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import wall.chinese.checkers.clientside.board.CogTypes;
 
 /**
  * CheckersServer runs server for ChineseCheckers game, waits for players and add them to the game.
@@ -16,7 +15,7 @@ public class CheckersServer
 	/**
 	 * This variable can be only 2, 3, 4 or 6. Server runs game only for these number of players.
 	 */
-	private final int maxCountOfPlayers = 2;
+	private final int maxCountOfPlayers = 3;
 	private ServerSocket listener;
 	public CheckersServer() throws Exception
 	{

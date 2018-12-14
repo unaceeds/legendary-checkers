@@ -16,7 +16,6 @@ import wall.chinese.checkers.clientside.board.CogTypes;
  */
 public class Game 
 {	//TODO what should be synchronized?
-	//TODO player can give up
 	//TODO PLAYER CAN'T MOVE OUT OF OPPONENT SECTION!
 	
 	private InsideBoard insideBoard;
@@ -165,9 +164,9 @@ public class Game
 			i = 0;
 		else
 			i++;
+		currentPlayer = players[i];
 		if(players[i].finished) // if somebody finished game, he can't play
 			changePlayer();
-		currentPlayer = players[i];
 		sendMessageToEveryone("Now player number " + currentPlayer.number + " is playing");
 	}
 	private void sendMessageToEveryone(String message)
@@ -222,6 +221,9 @@ public class Game
 		@Override
 		public void run()
 		{	
+			String command;
+			String[] commands;
+			String[] prevCommands = null; // previous commands array
 			try
 			{
 				output.println("YOU " + myCogType.toString()); // tell client which cogType is his
@@ -229,46 +231,63 @@ public class Game
 				sendWholeBoardToPlayers();
 				while(true) //infinity loop that reads input from client and react
 				{
-					String command = input.readLine();
+					command = input.readLine();
 					//System.out.println(command);
-					String[] commands = command.split(" ");
+					commands = command.split(" ");
 					if(commands[0].equals("BMOV") && isGoodPlayer() && !allFinished) //before mov - sending possible moves
 					{
 						sendWholeBoardToPlayers();
-						sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
-								Integer.parseInt(commands[2]), false);
+						//solution of following cheat: jump, an then request BMOV for another pawn
+						if(prevCommands == null || prevCommands.length != 4 ||  
+								!wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
+						{
+							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
+									Integer.parseInt(commands[2]), false);
+						}
+						else if(prevCommands != null && prevCommands.length == 4 && 
+								wasJumped(Integer.parseInt(prevCommands[2]), Integer.parseInt(prevCommands[3])))
+						{
+							changePlayer();
+						}
 					}
 					else if(commands[0].equals("MOV") && !allFinished) // move
 					{
 						if(isGoodPlayer())
 							insideBoard.move(CogTypes.valueOf(commands[1]), Integer.parseInt(commands[2]), 
 								Integer.parseInt(commands[3]));
+						
 						sendWholeBoardToPlayers();
+						
 						if(isWinner(this) && isGoodPlayer())
 						{
-							sendMessageToEveryone("Player number " + number + " successfully finished his game");
 							finished = true;
 							if(isEveryoneFinished())
-							{
 								allFinished = true; 
-								sendMessageToEveryone("End of the game, everyone successfully finished");
-							}
 						}
+						
 						if(Integer.parseInt(commands[2]) == Integer.parseInt(commands[3])) // MOV 2 2 - end of jumping
 						{
 							sendWholeBoardToPlayers();
-							if(isGoodPlayer())
+							if(isGoodPlayer() && !allFinished)
 								changePlayer();
 						}
+						
 						if(wasJumped(Integer.parseInt(commands[2]), Integer.parseInt(commands[3])) && 
-								isGoodPlayer())
+								isGoodPlayer() && !allFinished)
 						{	// after jump we immediately want to show possibilites 
 							sendPossibleMoves(output, CogTypes.valueOf(commands[1]), 
 									Integer.parseInt(commands[3]), true);
 						}
-						else if(isGoodPlayer()) // after normal move
+						else if(isGoodPlayer() && !allFinished) // after normal move
 							changePlayer();
 						
+						if(isWinner(this))
+							sendMessageToEveryone("Player number " + number + " successfully finished his game");
+						
+						if(isEveryoneFinished())
+							sendMessageToEveryone("End of the game, everyone successfully finished");
+						
+						prevCommands = commands.clone();
 					}
 				}
 			}

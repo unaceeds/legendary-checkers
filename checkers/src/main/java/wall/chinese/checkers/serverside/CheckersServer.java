@@ -16,7 +16,7 @@ public class CheckersServer
 	/**
 	 * This variable can be only 2, 3, 4 or 6. Server runs game only for these number of players.
 	 */
-	private final int maxCountOfPlayers = 4;
+	private final int maxCountOfPlayers = 2;
 	private ServerSocket listener;
 	public CheckersServer() throws Exception
 	{

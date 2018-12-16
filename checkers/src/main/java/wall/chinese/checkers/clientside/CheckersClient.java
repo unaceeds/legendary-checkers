@@ -1,8 +1,10 @@
 package wall.chinese.checkers.clientside;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 
 /**
@@ -28,9 +30,10 @@ public class CheckersClient {
 	/**
 	 * Instantiates a new checkers client.
 	 *
-	 * @throws Exception the exception
+	 * @throws ConnectException the connect exception
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public CheckersClient() throws Exception {
+	public CheckersClient() throws IOException {
 
 		socket = new Socket("localhost", PORT);
 		input = new BufferedReader(

@@ -25,6 +25,7 @@ public class CheckersClientGUI extends JFrame {
 		visualBoard = new VisualBoard(output);
 		add(visualBoard);
 		pack();
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);
 

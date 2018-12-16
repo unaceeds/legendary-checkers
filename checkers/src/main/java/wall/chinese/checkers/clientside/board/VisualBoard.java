@@ -31,6 +31,15 @@ public class VisualBoard extends JPanel implements MouseListener {
 	/** The circles. */
 	private Circle[] circles;
 
+	/**
+	 * Gets the circles.
+	 *
+	 * @return the circles
+	 */
+	public Circle[] getCircles() {
+		return this.circles;
+	}
+
 	/** The output. */
 	private PrintWriter output;
 
@@ -69,7 +78,7 @@ public class VisualBoard extends JPanel implements MouseListener {
 				new Dimension(13 * 40, (int) (17 * 40 * Math.sqrt(3) / 2)));
 		this.output = output;
 		this.myCogType = CogTypes.EBP;
-		this.message = "";
+		this.message = "Waiting for players";
 	}
 
 	/**
@@ -97,8 +106,10 @@ public class VisualBoard extends JPanel implements MouseListener {
 	private void drawBoard(Graphics2D g2) {
 		for (int i = 0; i < 121; i++) {
 			g2.setPaint(circles[i].getPaint());
-			g2.drawString(Integer.toString(i), (int) circles[i].getX(),
-					(int) circles[i].getY());
+			/*
+			 * g2.drawString(Integer.toString(i), (int) circles[i].getX(), (int)
+			 * circles[i].getY());
+			 */
 			if (circles[i].getFilled()) {
 				g2.fill(circles[i]);
 			} else {
@@ -123,9 +134,6 @@ public class VisualBoard extends JPanel implements MouseListener {
 		g2.setPaint(GradientBuilder.buildRadialGradient(10, 10,
 				myCogType.getColor()));
 		g2.drawString(message, 10, 10);
-		g2.setPaint(GradientBuilder.buildRadialGradient(10, 30,
-				myCogType.getColor()));
-		g2.drawString("TWOJ KOLOR", 10, 30);
 	}
 
 	/**
@@ -268,8 +276,9 @@ public class VisualBoard extends JPanel implements MouseListener {
 	 *
 	 * @param message the new message
 	 */
-	public void setMessage(String message) {
+	public String setMessage(String message) {
 		this.message = message;
+		return this.message;
 	}
 
 }

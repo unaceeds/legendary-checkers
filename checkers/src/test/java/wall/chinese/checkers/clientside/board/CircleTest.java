@@ -4,7 +4,9 @@
 package wall.chinese.checkers.clientside.board;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -49,7 +51,7 @@ public class CircleTest {
 	public void testSetFilled() {
 		Circle objectUnderTest = new Circle(0, 0);
 		objectUnderTest.setFilled(true);
-		assertEquals(true, objectUnderTest.getFilled());
+		assertTrue(objectUnderTest.getFilled());
 	}
 
 	/**
@@ -58,7 +60,7 @@ public class CircleTest {
 	@Test
 	public void testGetFilled() {
 		Circle objectUnderTest = new Circle(0, 0);
-		assertEquals(false, objectUnderTest.getFilled());
+		assertFalse(objectUnderTest.getFilled());
 	}
 
 	/**

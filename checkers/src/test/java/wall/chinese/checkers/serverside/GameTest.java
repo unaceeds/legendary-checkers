@@ -61,7 +61,7 @@ public class GameTest {
 		Game objectUnderTest = new Game(2);
 		objectUnderTest.addPlayer(objectUnderTest.new Player(new Socket(), 0));
 		objectUnderTest.addPlayer(objectUnderTest.new Player(new Socket(), 1));
-		assertNotNull(objectUnderTest);
+		assertEquals(2, objectUnderTest.getPlayers().length);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class GameTest {
 		objectUnderTest.addPlayer(objectUnderTest.new Player(new Socket(), 3));
 		objectUnderTest.addPlayer(objectUnderTest.new Player(new Socket(), 4));
 		objectUnderTest.addPlayer(objectUnderTest.new Player(new Socket(), 5));
-		assertNotNull(objectUnderTest);
+		assertEquals(6, objectUnderTest.getPlayers().length);
 	}
 
 	/**

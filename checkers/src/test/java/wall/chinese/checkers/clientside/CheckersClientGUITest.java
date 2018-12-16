@@ -28,8 +28,7 @@ public class CheckersClientGUITest {
 	@Test
 	public void testGetBoard() {
 		CheckersClientGUI objectUnderTest = new CheckersClientGUI(null);
-		objectUnderTest.getBoard();
-		assertNotNull(objectUnderTest);
+		assertNotNull(objectUnderTest.getBoard());
 	}
 
 }

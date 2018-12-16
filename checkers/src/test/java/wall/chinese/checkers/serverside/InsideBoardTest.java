@@ -3,7 +3,12 @@
  */
 package wall.chinese.checkers.serverside;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -30,8 +35,8 @@ public class InsideBoardTest {
 	@Test
 	public void testGetFields() {
 		InsideBoard objectUnderTest = new InsideBoard();
-		objectUnderTest.getFields();
-		assertNotNull(objectUnderTest);
+		List<Field> list = objectUnderTest.getFields();
+		assertEquals(121, list.size());
 	}
 
 	/**
@@ -40,8 +45,8 @@ public class InsideBoardTest {
 	@Test
 	public void testGetPlayerSections() {
 		InsideBoard objectUnderTest = new InsideBoard();
-		objectUnderTest.getPlayerSections();
-		assertNotNull(objectUnderTest);
+		List<List<Field>> list = objectUnderTest.getPlayerSections();
+		assertEquals(6, list.size());
 	}
 
 	/**
@@ -52,7 +57,8 @@ public class InsideBoardTest {
 		InsideBoard objectUnderTest = new InsideBoard();
 		CogTypes[] cogTypes = { CogTypes.EAX };
 		objectUnderTest.fillStartedBoard(cogTypes);
-		assertNotNull(objectUnderTest);
+		assertEquals(CogTypes.EAX,
+				objectUnderTest.getFields().get(0).getCogType());
 	}
 
 	/**
@@ -62,7 +68,8 @@ public class InsideBoardTest {
 	public void testMove() {
 		InsideBoard objectUnderTest = new InsideBoard();
 		objectUnderTest.move(CogTypes.EAX, 0, 1);
-		assertNotNull(objectUnderTest);
+		assertEquals(CogTypes.EAX,
+				objectUnderTest.getFields().get(1).getCogType());
 	}
 
 	/**
@@ -73,8 +80,9 @@ public class InsideBoardTest {
 		InsideBoard objectUnderTest = new InsideBoard();
 		objectUnderTest.getFields().get(0).setCogType(CogTypes.EAX);
 		objectUnderTest.getFields().get(1).setCogType(CogTypes.EAX);
-		objectUnderTest.getPossibleMoves(CogTypes.EAX, CogTypes.EAX, 0, false);
-		assertNotNull(objectUnderTest);
+		List<Integer> list = objectUnderTest.getPossibleMoves(CogTypes.EAX,
+				CogTypes.EAX, 0, false);
+		assertEquals(2, list.size());
 	}
 
 	/**
@@ -86,8 +94,9 @@ public class InsideBoardTest {
 		InsideBoard objectUnderTest = new InsideBoard();
 		objectUnderTest.getFields().get(0).setCogType(CogTypes.EBX);
 		objectUnderTest.getFields().get(1).setCogType(CogTypes.EAX);
-		objectUnderTest.getPossibleMoves(CogTypes.EAX, CogTypes.EAX, 0, false);
-		assertNotNull(objectUnderTest);
+		List<Integer> list = objectUnderTest.getPossibleMoves(CogTypes.EAX,
+				CogTypes.EAX, 0, false);
+		assertEquals(0, list.size());
 	}
 
 	/**
@@ -99,8 +108,9 @@ public class InsideBoardTest {
 		InsideBoard objectUnderTest = new InsideBoard();
 		objectUnderTest.getFields().get(0).setCogType(CogTypes.EAX);
 		objectUnderTest.getFields().get(1).setCogType(CogTypes.EAX);
-		objectUnderTest.getPossibleMoves(CogTypes.EAX, CogTypes.EAX, 0, true);
-		assertNotNull(objectUnderTest);
+		List<Integer> list = objectUnderTest.getPossibleMoves(CogTypes.EAX,
+				CogTypes.EAX, 0, true);
+		assertEquals(1, list.size());
 	}
 
 	/**
@@ -112,8 +122,9 @@ public class InsideBoardTest {
 		InsideBoard objectUnderTest = new InsideBoard();
 		objectUnderTest.getFields().get(0).setCogType(CogTypes.EAX);
 		objectUnderTest.getFields().get(1).setCogType(CogTypes.EAX);
-		objectUnderTest.getPossibleMoves(CogTypes.EAX, CogTypes.EBX, 0, true);
-		assertNotNull(objectUnderTest);
+		List<Integer> list = objectUnderTest.getPossibleMoves(CogTypes.EAX,
+				CogTypes.EBX, 0, false);
+		assertEquals(2, list.size());
 	}
 
 	/**
@@ -123,8 +134,7 @@ public class InsideBoardTest {
 	@Test
 	public void testWasJumped1() {
 		InsideBoard objectUnderTest = new InsideBoard();
-		objectUnderTest.wasJumped(0, 0);
-		assertNotNull(objectUnderTest);
+		assertFalse(objectUnderTest.wasJumped(0, 0));
 	}
 
 	/**
@@ -134,8 +144,7 @@ public class InsideBoardTest {
 	@Test
 	public void testWasJumped2() {
 		InsideBoard objectUnderTest = new InsideBoard();
-		objectUnderTest.wasJumped(0, 1);
-		assertNotNull(objectUnderTest);
+		assertFalse(objectUnderTest.wasJumped(0, 2));
 	}
 
 	/**
@@ -145,8 +154,7 @@ public class InsideBoardTest {
 	@Test
 	public void testWasJumped3() {
 		InsideBoard objectUnderTest = new InsideBoard();
-		objectUnderTest.wasJumped(0, 3);
-		assertNotNull(objectUnderTest);
+		assertTrue(objectUnderTest.wasJumped(0, 3));
 	}
 
 }

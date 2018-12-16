@@ -3,10 +3,12 @@
  */
 package wall.chinese.checkers.clientside.interpreter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
+import wall.chinese.checkers.clientside.board.CogTypes;
 import wall.chinese.checkers.clientside.board.VisualBoard;
 
 /**
@@ -75,11 +77,12 @@ class AbstractCirclesExpressionTest {
 	 */
 	@Test
 	void testInterpreteQueries1() {
+		VisualBoard board = new VisualBoard(null);
 		AbstractCirclesExpression objectUnderTest = new AddCirclesExpression(
-				new VisualBoard(null));
+				board);
 		String[] a = { "ADD", "EAX", "0" };
 		objectUnderTest.interpreteQueries(a);
-		assertNotNull(objectUnderTest);
+		assertEquals(CogTypes.EAX, board.getCircles()[0].getCogType());
 	}
 
 	/**
@@ -88,11 +91,13 @@ class AbstractCirclesExpressionTest {
 	 */
 	@Test
 	void testInterpreteQueries2() {
-		AbstractCirclesExpression objectUnderTest = new MovCirclesExpression(
-				new VisualBoard(null));
+		VisualBoard board = new VisualBoard(null);
+		AbstractCirclesExpression objectUnderTest = new AddCirclesExpression(
+				board);
 		String[] a = { "MOV", "EAX", "0", "1" };
 		objectUnderTest.interpreteQueries(a);
-		assertNotNull(objectUnderTest);
+		assertEquals(CogTypes.EAX, board.getCircles()[0].getCogType());
+		assertEquals(CogTypes.EAX, board.getCircles()[1].getCogType());
 	}
 
 	/**

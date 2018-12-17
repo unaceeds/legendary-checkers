@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>707</x>
+      <y>588</y>
+      <w>504</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>InsideBoard
+--
+-fields: List&lt;Field&gt;
+-playerSections: List&lt;List&lt;Field&gt;&gt;
++distancesForField : int[][]
+--
++InsideBoard(): ctor
++getFields(): List&lt;Field&gt;
++getPlayerSections(): List&lt;List&lt;Field&gt;&gt;
++fillStartedBoard(CogTypes[] cogTypes): void
++move(CogTypes cogType, int oldFieldIndex, int newFieldIndex): void
++getPossibleMoves(CogTypes cogType, CogTypes oppCogType, int fieldIndex, boolean afterJump): List&lt;Integer&gt;
++wasJumped(int oldFieldIndex, int newFieldIndex): boolean
+-generateFields(): void
+-preparePlayerSections(): void
+-preparePlayerSection(int section, int j, Field field): void
+-setNeighboursFor(Field field): void
+-setNeighbourFor(Field field, int neighbourIndex): void
+-isInPlayerSection(int fieldIndex, int playerSectionIndex): boolean
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>721</x>
+      <y>56</y>
+      <w>609</w>
+      <h>455</h>
+    </coordinates>
+    <panel_attributes>Game
+--
+-insideBoard: InsideBoard
+-maxCountOfPlayers: int
+-countOfConnectedPlayers: int
+-allFinished = false: boolean
+-players: Player[]
+-currentPlayer: Player
+-startPlayers : CogTypes[]
+-startTwoPlayers : CogTypes[]
+-startThreePlayers : CogTypes[]
+-startFourPlayers : CogTypes[]
+-startSixPlayers : CogTypes[]
+--
++Game(int maxCountOfPlayers): ctor
++addPlayer(Player player): void
++getPlayers(): Player[]
++setRandomCurrentPlayer(): void
+-isWinner(Player player): boolean
+-sendWholeBoardToPlayers(): void
+-sendPossibleMoves(PrintWriter output, CogTypes cogType, CogTypes oppCogType, int fieldIndex, boolean afterJump): void
+-changePlayer(): void
+-sendMessageToEveryone(String message): void
+-isEveryoneFinished(): boolean
+
+{innerclass
+::Player
+--
+-number: int
+-socket: Socket
+-input: BufferedReader
+-output: PrintWriter
+-myCogType: CogTypes
+-oppositeCogType: CogTypes
+-finished = false: boolean
+-bot: boolean
+--
++Player(Socket socket, int indexOfPlayer, boolean bot): ctor
++run(): void
+-setOppositeCogType(): void
+-isGoodPlayer(): boolean
+
+innerclass}
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>147</x>
+      <y>609</y>
+      <w>273</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>Field
+--
+-neighbours: int[]
+-cogType: CogTypes
+--
++Field(int row): ctor
++setNeighbour(Direction direction, int neighbourIndex): void
++getNeighbours(): int[]
++getRow(): int
++setCogType(CogTypes cogType): void
++getCogType(): CogTypes
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>133</x>
+      <y>112</y>
+      <w>231</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>CheckersServer
+--
+-PORT: int
+-maxCountOfPlayers: int
+-countOfRealPlayers: int
+-listener: ServerSocket
+--
++CheckersServer(): ctor
++main(String[] args): void
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>413</x>
+      <y>686</y>
+      <w>308</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>420.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>966</x>
+      <y>504</y>
+      <w>21</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>357</x>
+      <y>168</y>
+      <w>378</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;520.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>280</x>
+      <y>343</y>
+      <w>91</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;enumeration&gt;
+Direction
+--
+UPPER_RIGHT
+RIGHT
+LOWER_RIGHT
+LOWER_LEFT
+LEFT
+UPPER_LEFT
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>364</x>
+      <y>399</y>
+      <w>357</w>
+      <h>245</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;270.0;10.0;270.0;330.0;490.0;330.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>315</x>
+      <y>441</y>
+      <w>21</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;240.0</additional_attributes>
+  </element>
+</diagram>

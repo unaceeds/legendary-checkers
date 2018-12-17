@@ -16,7 +16,7 @@ import wall.chinese.checkers.clientside.board.CogTypes;
  * 
  * @author piotr
  */
-public class Game { // TODO what should be synchronized?
+public class Game {
 
 	private InsideBoard insideBoard;
 	/**
@@ -161,7 +161,7 @@ public class Game { // TODO what should be synchronized?
 	/**
 	 * Allows to change current player to the next one(clockwise)
 	 */
-	private void changePlayer() {
+	private synchronized void changePlayer() {
 		int i = 0;
 		while (players[i] != currentPlayer) // searching for next player
 			i++;
@@ -421,7 +421,7 @@ public class Game { // TODO what should be synchronized?
 		/**
 		 * @return true if this player has now his round, false otherwise
 		 */
-		private boolean isGoodPlayer() {
+		private synchronized boolean isGoodPlayer() {
 			int i = 0;
 			while (startPlayers[i] != myCogType)
 				i++;

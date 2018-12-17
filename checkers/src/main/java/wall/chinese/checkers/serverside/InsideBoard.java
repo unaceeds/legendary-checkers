@@ -238,7 +238,7 @@ public class InsideBoard {
 	 * @return list of indices of fields on which moves are possible
 	 */
 	public List<Integer> getPossibleMoves(CogTypes cogType, CogTypes oppCogType,
-			int fieldIndex, boolean afterJump) {// TODO use oppCogType
+			int fieldIndex, boolean afterJump) {
 		List<Integer> possibleMoves = new ArrayList<Integer>();
 		if (fields.get(fieldIndex).getCogType() != cogType) // pawn is not ours
 			return possibleMoves;

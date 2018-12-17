@@ -16,6 +16,12 @@ public class CheckersServer {
 	 * number of players.
 	 */
 	private final int maxCountOfPlayers = 3;
+	/**
+	 * This variable tells how many of players 
+	 * is going to be real players, not bots.
+	 * It has to be not greater than {@link maxCountOfPlayers}.
+	 */
+	private final int countOfRealPlayers = 2;
 	private ServerSocket listener;
 
 	public CheckersServer() throws Exception {
@@ -23,14 +29,7 @@ public class CheckersServer {
 		System.out.println("Server is Running");
 		try {
 			Game game = new Game(maxCountOfPlayers);
-			game.addPlayer(game.new Player(listener.accept(), 0, false));
-			for (int i = 1; i < maxCountOfPlayers; i++)
-				game.addPlayer(game.new Player(null, i, true)); // sending
-																// socket
-																// and
-																// index
-																// of
-																// players
+			preparePlayersAndBots(game);
 
 			game.setRandomCurrentPlayer(); // who starts
 
@@ -42,6 +41,19 @@ public class CheckersServer {
 			listener.close();
 		}
 
+	}
+	/**
+	 * This function instantiate new real players or bots 
+	 * and adds them to the game.
+	 * @param game
+	 * @throws Exception
+	 */
+	private void preparePlayersAndBots(Game game) throws Exception
+	{
+		for(int i = 0; i < countOfRealPlayers; i++)
+			game.addPlayer(game.new Player(listener.accept(), i, false));
+		for(int i = countOfRealPlayers; i < maxCountOfPlayers; i++)
+			game.addPlayer(game.new Player(null, i, true));
 	}
 
 	public static void main(String[] args) throws Exception {

@@ -44,7 +44,7 @@ public class CheckersClient {
 
 		while (true) {
 			response = input.readLine();
-			System.out.println(response);
+			//System.out.println(response);
 			checkersClientGUI.getBoard().interprete(response);
 		}
 	}
